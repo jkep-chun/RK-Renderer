@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ODE Stability Renderer</title>
+    <!-- Plotly CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1 style="text-align: center; font-family: sans-serif;">ODE Stability Renderer</h1>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main>
+        <div id="plot-container" style="width: 100%; max-width: 900px; height: 500px; margin: 20px auto; border: 1px solid #ddd; border-radius: 4px;"></div>
+    </main>
+
+    <div id="control-panel">
+        <!-- Refresh button -->
+        <button id="refresh-btn">Refresh</button>
+
+        <!-- Input fields for parameters -->
+        <label for="x0-input">Initial Position (x0):</label>
+        <input type="number" id="x0-input" value="1" step="0.1">
+
+        <label for="v0-input">Initial Velocity (v0):</label>
+        <input type="number" id="v0-input" value="0" step="0.1">
+
+        <label for="m-input">Mass (m):</label>
+        <input type="number" id="m-input" value="1" step="0.1">
+
+        <label for="k-input">Spring Constant (k):</label>
+        <input type="number" id="k-input" value="1" step="0.1">
+
+        <label for="b-input">Damping Coefficient (b):</label>
+        <input type="number" id="b-input" value="0.1" step="0.1">
+
+        <label for="ts-input">Time Step (ts):</label>
+        <input type="number" id="ts-input" value="0.10" step="0.01">
+
+        <label for="t_end-input">End Time (t_end):</label>
+        <input type="number" id="t_end-input" value="10" step="0.1">
+    </div>
+
+    <!-- Solver and UI scripts -->
+    <script src="src/solver.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>
