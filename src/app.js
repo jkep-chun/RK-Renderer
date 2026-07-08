@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: exact.map(p => p.x),
                 mode: 'lines',
                 name: 'Exact Solution',
-                line: { color: '#2ca02c', width: 2 }
+                line: { color: '#2ca02c', width: 3 }
             };
             data.push(traceExact);
         }
@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: euler.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'Forward Euler',
-                marker: { size: 6 },
-                line: { color: '#d62728', dash: 'dash' }
+                marker: { size: 4 },
+                line: { color: '#d62728', width: 1 }
             };
             data.push(traceEuler);
         }
@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: rk2.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK2',
-                marker: { size: 6 },
-                line: { color: '#ff7f0e', dash: 'dot' }
+                marker: { size: 4 },
+                line: { color: '#ff7f0e', width: 1 }
             };
             data.push(traceRK2);
         }
@@ -154,19 +154,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: rk4.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK4',
-                marker: { size: 6 },
-                line: { color: '#1f77b4' }
+                marker: { size: 4 },
+                line: { color: '#1f77b4', width: 1 }
             };
             data.push(traceRK4);
         }
 
         const layout = {
-            title: {
-                text: 'Damped Harmonic Oscillator: Numerical Stability Comparison',
-                font: { family: 'Arial, sans-serif', size: 16 }
-            },
-            xaxis: { title: 'Time (seconds)', gridcolor: '#eee' },
-            yaxis: { title: 'Position x (meters)', gridcolor: '#eee' },
+            xaxis: { title: 'Time (seconds)', gridcolor: '#eee', range: [0, eqParams.t_end] },
+            yaxis: { title: 'Position x (meters)', gridcolor: '#eee', range: [-1.5 * Math.abs(eqParams.x0), 1.5 * Math.abs(eqParams.x0)] },
+            showlegend: false,
             plot_bgcolor: '#fafafa',
             paper_bgcolor: '#ffffff',
             margin: { t: 50, b: 50, l: 60, r: 20 }
