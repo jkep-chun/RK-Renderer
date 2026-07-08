@@ -11,12 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Define default simulation parameters
     const defaultParams = {
-        x0: 0.5,    // Initial position (m)
-        v0: 1.0,    // Initial velocity (m/s)
+        x0: 1.0,    // Initial position (m)
+        v0: 0.0,    // Initial velocity (m/s)
         m: 0.1,     // Mass (kg)
-        k: 3.2,     // Spring constant (N/m)
-        b: 0.05,    // Damping coefficient (N-s/m)
-        ts: 0.25,   // Time step (s)
+        k: 1.0,     // Spring constant (N/m)
+        b: 0.1,     // Damping coefficient (N-s/m)
+        ts: 0.10,   // Time step (s)
         t_end: 10.0 // Simulation duration (s)
     };
 
@@ -26,11 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshButton = document.getElementById('refresh-btn'); // Refreshes simulation
     const input_x0 = document.getElementById('x0-input');
     const input_v0 = document.getElementById('v0-input');
-    const input_m = document.getElementById('mass-input');
+    const input_m = document.getElementById('m-input');
     const input_k = document.getElementById('k-input');
     const input_b = document.getElementById('b-input');
     const input_ts = document.getElementById('ts-input');
-    const input_tend = document.getElementById('tend-input');
+    const input_t_end = document.getElementById('t_end-input');
     const show_exact = document.getElementById('show-exact');
     const show_euler = document.getElementById('show-euler');
     const show_rk2 = document.getElementById('show-rk2');
@@ -51,11 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use optional chaining and default values to avoid errors if elements are missing
         const x0 = parseFloat(document.getElementById('x0-input')?.value) || defaultParams.x0;
         const v0 = parseFloat(document.getElementById('v0-input')?.value) || defaultParams.v0;
-        const m = parseFloat(document.getElementById('mass-input')?.value) || defaultParams.m;
+        const m = parseFloat(document.getElementById('m-input')?.value) || defaultParams.m;
         const k = parseFloat(document.getElementById('k-input')?.value) || defaultParams.k;
         const b = parseFloat(document.getElementById('b-input')?.value) || defaultParams.b;
         const ts = parseFloat(document.getElementById('ts-input')?.value) || defaultParams.ts;
-        const t_end = parseFloat(document.getElementById('tend-input')?.value) || defaultParams.t_end;
+        const t_end = parseFloat(document.getElementById('t_end-input')?.value) || defaultParams.t_end;
 
         // Return a parameters object matching the ODESolver expectations
         return { x0, v0, m, k, b, ts, t_end };
