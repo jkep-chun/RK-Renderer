@@ -53,14 +53,21 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {object} params
      */
     function getEquationParams() {
-        // Use optional chaining and default values to avoid errors if elements are missing
-        const x0 = parseFloat(document.getElementById('x0-input')?.value) || defaultParams.x0;
-        const v0 = parseFloat(document.getElementById('v0-input')?.value) || defaultParams.v0;
-        const m = parseFloat(document.getElementById('m-input')?.value) || defaultParams.m;
-        const k = parseFloat(document.getElementById('k-input')?.value) || defaultParams.k;
-        const b = parseFloat(document.getElementById('b-input')?.value) || defaultParams.b;
-        const ts = parseFloat(document.getElementById('ts-input')?.value) || defaultParams.ts;
-        const t_end = parseFloat(document.getElementById('t_end-input')?.value) || defaultParams.t_end;
+        // Helper to safely parse inputs and fallback to defaults without treating 0 as falsy
+        const getValue = (id, defaultValue) => {
+            const el = document.getElementById(id);
+            if (!el) return defaultValue;
+            const parsed = parseFloat(el.value);
+            return isNaN(parsed) ? defaultValue : parsed;
+        };
+
+        const x0 = getValue('x0-input', defaultParams.x0);
+        const v0 = getValue('v0-input', defaultParams.v0);
+        const m = getValue('m-input', defaultParams.m);
+        const k = getValue('k-input', defaultParams.k);
+        const b = getValue('b-input', defaultParams.b);
+        const ts = getValue('ts-input', defaultParams.ts);
+        const t_end = getValue('t_end-input', defaultParams.t_end);
 
         // Return a parameters object matching the ODESolver expectations
         return { x0, v0, m, k, b, ts, t_end };
@@ -169,10 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             data.push(traceRK4);
         }
+        
+        // Find max absolute value in exact solution traces to dynamically set a good y-axis range
+        const maxVal = Math.max(1.0, ...exactResults.map(p => Math.abs(p.x)));
 
         const layout = {
             xaxis: { title: 'Time (seconds)', gridcolor: '#eee', range: [0, eqParams.t_end] },
-            yaxis: { title: 'Position x (meters)', gridcolor: '#eee', range: [-1.5 * Math.abs(eqParams.x0), 1.5 * Math.abs(eqParams.x0)] },
+            yaxis: { title: 'Position x (meters)', gridcolor: '#eee', range: [-1.2 * maxVal, 1.2 * maxVal] },
             showlegend: false,
             plot_bgcolor: '#fafafa',
             paper_bgcolor: '#ffffff',
