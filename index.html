@@ -17,29 +17,48 @@
     <main>
         <div id="plot-container" style="width: 100%; max-width: 900px; height: 500px; margin: 20px auto; border: 1px solid #ddd; border-radius: 4px;"></div>
     </main>
+    
+    <div id="plot-panel">
+        <!-- Plot visibility options -->
+        <label for="show-exact">Exact Solution</label>
+        <input type="checkbox" id="show-exact" checked>
+        <label for="show-euler">Forward Euler</label>
+        <input type="checkbox" id="show-euler" checked>
+        <label for="show-rk2">RK2</label>
+        <input type="checkbox" id="show-rk2" checked>
+        <label for="show-rk4">RK4</label>
+        <input type="checkbox" id="show-rk4" checked>
+    </div>
 
-    <div id="control-panel">
+    <div id="input-panel">
         <!-- Refresh button -->
         <button id="refresh-btn">Refresh</button>
+        <br>
 
         <!-- Input fields for parameters -->
         <label for="x0-input">Initial Position (x0):</label>
         <input type="number" id="x0-input" value="1" step="0.1">
+        <br>
 
         <label for="v0-input">Initial Velocity (v0):</label>
         <input type="number" id="v0-input" value="0" step="0.1">
+        <br>
 
         <label for="m-input">Mass (m):</label>
         <input type="number" id="m-input" value="1" step="0.1">
+        <br>
 
         <label for="k-input">Spring Constant (k):</label>
         <input type="number" id="k-input" value="1" step="0.1">
+        <br>
 
         <label for="b-input">Damping Coefficient (b):</label>
         <input type="number" id="b-input" value="0.1" step="0.1">
+        <br>
 
         <label for="ts-input">Time Step (ts):</label>
         <input type="number" id="ts-input" value="0.10" step="0.01">
+        <br>
 
         <label for="t_end-input">End Time (t_end):</label>
         <input type="number" id="t_end-input" value="10" step="0.1">
