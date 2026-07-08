@@ -1,0 +1,191 @@
+/* Clean minimalist typeface */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Left panel for modifying inputs */
+#input-panel {
+    width: 300px;
+    min-width: 300px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#input-panel h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+}
+
+/* Layout inputs with labels */
+#input-panel label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+
+#input-panel label:first-of-type {
+    margin-top: 0;
+}
+
+#input-panel input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#input-panel input[type="number"]:focus {
+    border-color: #64748b;
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
+}
+
+#input-panel br {
+    display: none; /* Hide line breaks to control spacing via CSS margin */
+}
+
+/* Refresh button */
+#refresh-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #334155;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    margin-top: 24px;
+}
+
+#refresh-btn:hover {
+    background-color: #1e293b;
+}
+
+/* Right Content Area */
+.content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    height: 100%;
+    overflow: hidden;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    text-align: left !important; /* Override inline styles */
+}
+
+main {
+    flex: 1;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#plot-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Checkboxes panel beneath the plot */
+#plot-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px 0;
+    background-color: transparent;
+    margin-top: 16px;
+}
+
+#plot-panel label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #334155;
+    user-select: none;
+}
+
+#plot-panel input[type="checkbox"] {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    accent-color: #475569;
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        overflow-y: auto;
+        height: auto;
+    }
+    #input-panel {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .content-container {
+        padding: 16px;
+        height: auto;
+    }
+    main {
+        height: 400px;
+    }
+    #plot-panel {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+}
