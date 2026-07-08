@@ -178,11 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Find max absolute value in exact solution traces to dynamically set a good y-axis range
-        const maxVal = Math.max(1.0, ...exactResults.map(p => Math.abs(p.x)));
+        const maxVal = Math.max(...exactResults.map(p => Math.abs(p.x)));
 
         const layout = {
             xaxis: { title: 'Time (seconds)', gridcolor: '#eee', range: [0, eqParams.t_end] },
-            yaxis: { title: 'Position x (meters)', gridcolor: '#eee', range: [-1.2 * maxVal, 1.2 * maxVal] },
+            yaxis: { title: 'Position x (meters)', gridcolor: '#eee', range: [-1.3 * maxVal, 1.3 * maxVal] },
             showlegend: false,
             plot_bgcolor: '#fafafa',
             paper_bgcolor: '#ffffff',
