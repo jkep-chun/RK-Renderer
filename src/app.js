@@ -66,10 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {object} displayParams
      */
     function getDisplayParams() {
-        const showExact = document.getElementById('show-exact')?.checked ?? true;
-        const showEuler = document.getElementById('show-euler')?.checked ?? true;
-        const showRK2 = document.getElementById('show-rk2')?.checked ?? true;
-        const showRK4 = document.getElementById('show-rk4')?.checked ?? true;
+        const showExact = document.getElementById('show-exact').checked;
+        const showEuler = document.getElementById('show-euler').checked;
+        const showRK2 = document.getElementById('show-rk2').checked;
+        const showRK4 = document.getElementById('show-rk4').checked;
         
         return { showExact, showEuler, showRK2, showRK4 };
     }
