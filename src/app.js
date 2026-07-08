@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
         t_end: 10.0 // Simulation duration (s)
     };
 
+    let exactResults = [];
+    let eulerResults = [];
+    let rk2Results = [];
+    let rk4Results = [];
+
     // 2. Query DOM elements (Buttons, Inputs, Output containers)
     // Example: const runButton = document.getElementById('run-btn');
     const mainContainer = document.querySelector('main');
@@ -38,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Attach event listeners to buttons and inputs
     if (refreshButton) refreshButton.addEventListener('click', runSimulation);
-    if (show_exact) show_exact.addEventListener('change', runSimulation);
-    if (show_euler) show_euler.addEventListener('change', runSimulation);
-    if (show_rk2) show_rk2.addEventListener('change', runSimulation);
-    if (show_rk4) show_rk4.addEventListener('change', runSimulation);
+    if (show_exact) show_exact.addEventListener('change', renderOutputTable);
+    if (show_euler) show_euler.addEventListener('change', renderOutputTable);
+    if (show_rk2) show_rk2.addEventListener('change', renderOutputTable);
+    if (show_rk4) show_rk4.addEventListener('change', renderOutputTable);
 
     /**
      * Gather parameters from UI input elements (if you implement them in HTML)
@@ -81,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const eqParams = getEquationParams();
         const dpParams = getDisplayParams();
 
-        console.log("Running simulation with parameters:", eqParams);
+        console.log("Running simulation...");
 
         // Check if solver is loaded globally
         if (!window.ODESolver) {
@@ -90,12 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Call approximation solver methods
-        const eulerResults = window.ODESolver.solveEuler(eqParams);
-        const rk2Results = window.ODESolver.solveRK2(eqParams);
-        const rk4Results = window.ODESolver.solveRK4(eqParams);
+        eulerResults.length = 0;
+        rk2Results.length = 0;
+        rk4Results.length = 0;
+        eulerResults = window.ODESolver.solveEuler(eqParams);
+        rk2Results = window.ODESolver.solveRK2(eqParams);
+        rk4Results = window.ODESolver.solveRK4(eqParams);
 
         // 4. Generate the exact solution over a smooth timeline for comparison
-        const exactResults = [];
+        exactResults.length = 0;
         const dtExact = 0.01; // Small time step for smooth analytical plotting
         for (let t = 0; t <= eqParams.t_end; t += dtExact) {
             const [x, v] = window.ODESolver.calcState(t, eqParams);
@@ -103,20 +111,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 5. Render the results
-        renderOutputTable(eulerResults, rk2Results, rk4Results, exactResults, eqParams, dpParams);
+        renderOutputTable();
     }
 
     /**
      * Helper to render the simulation results using Plotly.js
      */
-    function renderOutputTable(euler, rk2, rk4, exact, eqParams, dpParams) {
+    function renderOutputTable() {
+        let eqParams = getEquationParams();
+        let dpParams = getDisplayParams();
         let data = [];
 
         if (dpParams.showExact) {
             // Create the individual data traces
             const traceExact = {
-                x: exact.map(p => p.t),
-                y: exact.map(p => p.x),
+                x: exactResults.map(p => p.t),
+                y: exactResults.map(p => p.x),
                 mode: 'lines',
                 name: 'Exact Solution',
                 line: { color: '#2ca02c', width: 3 }
@@ -126,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showEuler) {
             const traceEuler = {
-                x: euler.map(p => p.t),
-                y: euler.map(p => p.x),
+                x: eulerResults.map(p => p.t),
+                y: eulerResults.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'Forward Euler',
                 marker: { size: 4 },
@@ -138,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showRK2) {
             const traceRK2 = {
-                x: rk2.map(p => p.t),
-                y: rk2.map(p => p.x),
+                x: rk2Results.map(p => p.t),
+                y: rk2Results.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK2',
                 marker: { size: 4 },
@@ -150,8 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showRK4) {
             const traceRK4 = {
-                x: rk4.map(p => p.t),
-                y: rk4.map(p => p.x),
+                x: rk4Results.map(p => p.t),
+                y: rk4Results.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK4',
                 marker: { size: 4 },
