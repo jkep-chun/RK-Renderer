@@ -62,6 +62,7 @@ $$
 #### 3. Runge-Kutta 4 (RK4, Classic)
 
 Updates the state using a weighted average of four gradients:
+
 $$
 \begin{align}
 \mathbf{k}_1     &= f(t_i, \mathbf{y}_i) \\
