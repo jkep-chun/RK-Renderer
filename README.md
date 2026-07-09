@@ -84,7 +84,7 @@ $y(t_n+\Delta t)=y(t_n)+\frac{y'(t_n)}{1!}(\Delta t)+\frac{y''(t_n)}{2!}(\Delta 
 and putting it into indexed notation,
 
 $$
-y_{n+1}=y_n + \frac{y_n^{(1)}}{1!}\Delta t + \frac{y_n^{(2)}}{2!}\Delta t^2 + \frac{y_n^{(3)}}{3!}\Delta t^3... \tag{1}
+y_{n+1}=y_n + \frac{y_n^{(1)}}{1!}\Delta t + \frac{y_n^{(2)}}{2!}\Delta t^2 + \frac{y_n^{(3)}}{3!}\Delta t^3...
 $$
 
 Write out enough terms of the sequence, and the expression will converge to the true value. Thus, to compare approximation methods, we will find their error relative to this Taylor Series.
