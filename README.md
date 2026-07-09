@@ -71,6 +71,36 @@ $
 
 The global error for the Forward Euler and RK4 methods will be derived analytically for illustration.
 
+#### Taylor Series
+
+Likely familiar from Calculus II is the Taylor Series expansion.
+
+$y(t)=y(a)+\frac{y'(a)}{1!}(t-a)+\frac{y''(a)}{2!}(t-a)^2+...$
+
+Making the substitutions $t=t_n+\Delta t$ and $a=t_n$ gives us
+
+$y(t_n+\Delta t)=y(t_n)+\frac{y'(t_n)}{1!}(\Delta t)+\frac{y''(t_n)}{2!}(\Delta t)^2+...$
+
+and putting it into indexed notation,
+
+$$
+y_{n+1}=y_n + \frac{y_n^{(1)}}{1!}\Delta t + \frac{y_n^{(2)}}{2!}\Delta t^2 + \frac{y_n^{(3)}}{3!}\Delta t^3... \tag{1}
+$$
+
+Write out enough terms of the sequence, and the expression will converge to the true value. Thus, to compare approximation methods, we will find their error relative to this Taylor Series.
+
+#### Forward Euler
+
+The Forward Euler differnece equation is simply
+
+$$
+y_{n+1} = y_n + y_n^{(1)} \Delta t
+$$
+
+Taking the local error by subtracting this expression from (1), we get a function of $\mathcal{O}(\Delta t^2)$. The global error is proportional to $\frac{1}{\Delta t}\times E$. Thus the global error is $\mathcal{O}(\Delta t)$.
+
+
+
 ---
 
 ## Improvements
