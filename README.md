@@ -49,6 +49,7 @@ $$
 #### 2. Runge-Kutta 2 (RK2, Midpoint Method)
 
 Updates the state based on the gradient evaluated at the midpoint of the step:
+
 $$
 \begin{aligned}
 \mathbf{k}_1 &= f(t_i, \mathbf{y}_i) \\
