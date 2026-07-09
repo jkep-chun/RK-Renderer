@@ -63,13 +63,13 @@ $$
 
 Updates the state using a weighted average of four gradients:
 $$
-\begin{aligned}
-\mathbf{k}_1 &= f(t_i, \mathbf{y}_i) \\
-\mathbf{k}_2 &= f\left(t_i + \frac{\Delta t}{2}, \mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
-\mathbf{k}_3 &= f\left(t_i + \frac{\Delta t}{2}, \mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_2\right) \\
-\mathbf{k}_4 &= f(t_i + \Delta t, \mathbf{y}_i + \Delta t\mathbf{k}_3) \\
+\begin{align}
+\mathbf{k}_1     &= f(t_i, \mathbf{y}_i) \\
+\mathbf{k}_2     &= f\left(t_i + \frac{\Delta t}{2}, \mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
+\mathbf{k}_3     &= f\left(t_i + \frac{\Delta t}{2}, \mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_2\right) \\
+\mathbf{k}_4     &= f(t_i + \Delta t, \mathbf{y}_i + \Delta t\mathbf{k}_3) \\
 \mathbf{y}_{i+1} &= \mathbf{y}_i + \frac{\Delta t}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4) \\
-\end{aligned}
+\end{align}
 $$
 
 * **Global Error**: $\mathcal{O}(\Delta t^4)$
