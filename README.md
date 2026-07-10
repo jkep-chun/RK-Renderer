@@ -30,7 +30,7 @@ $$
 m\ddot{x} + b\dot{x} + kx = 0
 $$
 
-Coupling the position and velocity in state-space form, where $\mathbf{y}$ is the state vector, gives the advantage of 'feedback' of [the states] to correct [certain error].
+Coupling the position and velocity in state-space form, where $\mathbf{y}$ is the state vector, gives the advantage of 'feedback' from all states to correct error*.
 
 $$
 \mathbf{y}(t) = \begin{bmatrix} x(t) \\ v(t) \end{bmatrix}, \quad \frac{d\mathbf{y}}{dt} = \mathbf{f}(t, \mathbf{y}) = \begin{bmatrix} v(t) \\ -\frac{b}{m}v(t) - \frac{k}{m}x(t) \end{bmatrix}
@@ -53,7 +53,7 @@ where $\mathbf{x}(t)$ is the $n\times1$ state vector, $\mathbf{A}$ the $n \times
 Updates the state based on the gradient at the start of the step:
 
 $$
-\mathbf{y}_{i+1} = \mathbf{y}_i + \Delta t \,\mathbf{f}(t_i,\;\mathbf{y}_i)
+\mathbf{y}_{i+1} = \mathbf{y}_i + \Delta t \mathbf{f}(t_i,\mathbf{y}_i)
 $$
 
 * **Global Error**: $\mathcal{O}(\Delta t)$
@@ -64,9 +64,9 @@ Updates the state based on the gradient evaluated at the midpoint of the step:
 
 $$
 \begin{aligned}
-\mathbf{k}_1 &= \mathbf{f}(t_i,\;\mathbf{y}_i) \\
-\mathbf{k}_2 &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\;\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
-\mathbf{y}_{i+1} &= \mathbf{y}_i + \Delta t \, \mathbf{k}_2
+\mathbf{k}_1 &= \mathbf{f}(t_i,\mathbf{y}_i) \\
+\mathbf{k}_2 &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
+\mathbf{y}_{i+1} &= \mathbf{y}_i + \Delta t  \mathbf{k}_2
 \end{aligned}
 $$
 
@@ -79,9 +79,9 @@ Updates the state using a weighted average of four gradients:
 $$
 \begin{aligned}
 \mathbf{k}_1     &= \mathbf{f}(t_i, \mathbf{y}_i) \\
-\mathbf{k}_2     &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\;\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
-\mathbf{k}_3     &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\;\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_2\right) \\
-\mathbf{k}_4     &= \mathbf{f}(t_i + \Delta t,\;\mathbf{y}_i + \Delta t\mathbf{k}_3) \\
+\mathbf{k}_2     &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_1\right) \\
+\mathbf{k}_3     &= \mathbf{f}\left(t_i + \frac{\Delta t}{2},\mathbf{y}_i + \frac{\Delta t}{2}\mathbf{k}_2\right) \\
+\mathbf{k}_4     &= \mathbf{f}(t_i + \Delta t,\mathbf{y}_i + \Delta t\mathbf{k}_3) \\
 \mathbf{y}_{i+1} &= \mathbf{y}_i + \frac{\Delta t}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4) \\
 \end{aligned}
 $$
@@ -103,8 +103,10 @@ $$
 Making the substitutions $f(x)=\mathbf{y}(x)$, $x=t_n+\Delta t$, and $a=t_n$, we get
 
 $$
-\mathbf{y}(t_n+\Delta t)=\mathbf{y}_n + \frac{\mathbf{y}_n^{(1)}}{1!}\Delta t + \frac{\mathbf{y}_n^{(2)}}{2!}\Delta t^2 +...=\sum_{i=0}^{\infty}\frac{\mathbf{y}_n^{(i)}}{i!}\Delta t^i
+\mathbf{y}(t_n+\Delta t)=\mathbf{y}_n + \frac{\dot{\mathbf{y}}_n}{1!}\Delta t + \frac{\ddot{\mathbf{y}}_n}{2!}\Delta t^2 +...=\sum_{i=0}^{\infty}\frac{\mathbf{y}_n^{(i)}}{i!}\Delta t^i
 $$
+
+where $\mathbf{y}_n^{(i)}$ denotes the $i\text{th}$ time derivative.
 
 Write out enough terms of the sequence, and the expression will converge to the true value. Thus, to compare approximation methods, we will find their error relative to this Taylor Series. We choose to denote the true next value as $\mathbf{y}(t_n + \Delta t)$ and the approximation as $\mathbf{y}_{n+1}$. Thus, the magnitude of the local error (for each time step) can be found as
 
@@ -140,8 +142,8 @@ where
 
 $$
 \begin{aligned}
-\mathbf{k}_1 &= \mathbf{f}(t,\; \mathbf{y}) \\
-\mathbf{k}_2 &= \mathbf{f}(t + \alpha\,\Delta t,\;\mathbf{y}_n + \beta\,\Delta t\,\mathbf{k}_1).
+\mathbf{k}_1 &= \mathbf{f}(t, \mathbf{y}) \\
+\mathbf{k}_2 &= \mathbf{f}(t + \alpha\Delta t,\mathbf{y}_n + \beta\Delta t\mathbf{k}_1).
 \end{aligned}
 $$
 
@@ -151,7 +153,7 @@ $$
 \begin{aligned}
 b_1 + b_2   &= 1    \\
 \alpha      &= 1/2  \\
-b_2\,\beta  &= 1/2,
+b_2\beta  &= 1/2,
 \end{aligned}
 $$
 
