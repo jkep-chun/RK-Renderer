@@ -112,12 +112,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Helper to format numbers dynamically
+     */
+    function formatError(val) {
+        if (val === 0) return '0.0000';
+        if (Math.abs(val) < 1e-4) {
+            return val.toExponential(4);
+        }
+        return val.toFixed(5);
+    }
+
+    /**
      * Helper to render the simulation results using Plotly.js
      */
     function renderOutputTable() {
         let eqParams = getEquationParams();
         let dpParams = getDisplayParams();
         let data = [];
+
+        // Update error values in the UI
+        const eulerRmsEl = document.getElementById('euler-rms');
+        const eulerLinfEl = document.getElementById('euler-linf');
+        const rk2RmsEl = document.getElementById('rk2-rms');
+        const rk2LinfEl = document.getElementById('rk2-linf');
+        const rk4RmsEl = document.getElementById('rk4-rms');
+        const rk4LinfEl = document.getElementById('rk4-linf');
+
+        if (eulerRmsEl && eulerLinfEl) {
+            eulerRmsEl.textContent = formatError(eulerSolution.getRMSE());
+            eulerLinfEl.textContent = formatError(eulerSolution.getLInfinity());
+        }
+        if (rk2RmsEl && rk2LinfEl) {
+            rk2RmsEl.textContent = formatError(rk2Solution.getRMSE());
+            rk2LinfEl.textContent = formatError(rk2Solution.getLInfinity());
+        }
+        if (rk4RmsEl && rk4LinfEl) {
+            rk4RmsEl.textContent = formatError(rk4Solution.getRMSE());
+            rk4LinfEl.textContent = formatError(rk4Solution.getLInfinity());
+        }
+
+        // Toggle faded class based on visibility
+        const eulerRow = document.getElementById('euler-row');
+        const rk2Row = document.getElementById('rk2-row');
+        const rk4Row = document.getElementById('rk4-row');
+
+        if (eulerRow) {
+            if (dpParams.showEuler) eulerRow.classList.remove('faded');
+            else eulerRow.classList.add('faded');
+        }
+        if (rk2Row) {
+            if (dpParams.showRK2) rk2Row.classList.remove('faded');
+            else rk2Row.classList.add('faded');
+        }
+        if (rk4Row) {
+            if (dpParams.showRK4) rk4Row.classList.remove('faded');
+            else rk4Row.classList.add('faded');
+        }
 
         if (dpParams.showExact) {
             // Create the individual data traces

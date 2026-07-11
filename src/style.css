@@ -164,6 +164,87 @@ main {
     cursor: pointer;
 }
 
+/* Error panel styling */
+#error-panel {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+    margin-top: auto; /* Push to the bottom of the panel if there is extra space */
+}
+
+#error-panel h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+}
+
+.error-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    color: #334155;
+}
+
+.error-table th, .error-table td {
+    padding: 8px 4px;
+    text-align: right;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.error-table th {
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.error-table tr {
+    transition: opacity 0.15s ease;
+}
+
+.error-table tr.faded {
+    opacity: 0.3;
+}
+
+.error-table td {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.775rem;
+    color: #0f172a;
+}
+
+.error-table td:first-child, .error-table th:first-child {
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.error-table tbody tr:not(.faded):hover {
+    background-color: #f8fafc;
+}
+
+/* Color dot indicator matching plot trace colors */
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+.dot.euler {
+    background-color: #d62728;
+}
+.dot.rk2 {
+    background-color: #ff7f0e;
+}
+.dot.rk4 {
+    background-color: #1f77b4;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     body {

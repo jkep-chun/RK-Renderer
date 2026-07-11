@@ -38,6 +38,37 @@
 
         <!-- Refresh button -->
         <button id="refresh-btn">Refresh</button>
+
+        <!-- Error Metrics Section -->
+        <div id="error-panel">
+            <h2>Error Metrics</h2>
+            <table class="error-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>RMS</th>
+                        <th>L<sub>&infin;</sub></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="euler-row">
+                        <td><span class="dot euler"></span>Euler</td>
+                        <td id="euler-rms">-</td>
+                        <td id="euler-linf">-</td>
+                    </tr>
+                    <tr id="rk2-row">
+                        <td><span class="dot rk2"></span>RK2</td>
+                        <td id="rk2-rms">-</td>
+                        <td id="rk2-linf">-</td>
+                    </tr>
+                    <tr id="rk4-row">
+                        <td><span class="dot rk4"></span>RK4</td>
+                        <td id="rk4-rms">-</td>
+                        <td id="rk4-linf">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Right Container: Header, Plot, and Plot Toggles -->
