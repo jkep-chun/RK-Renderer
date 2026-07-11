@@ -194,6 +194,13 @@
         return new Solution(results);
     };
 
+    ODESolver.solveDP45 = function (params) {
+        // Placeholder for Dormand-Prince 4(5) method implementation
+        // This method is more complex and requires adaptive step sizing
+        // For now, we can return an empty array or throw an error
+        throw new Error("Dormand-Prince 4(5) method not yet implemented.");
+    }
+
     // Expose the ODESolver namespace globally for use in app.js
     global.ODESolver = ODESolver;
 
