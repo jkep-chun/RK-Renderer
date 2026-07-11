@@ -165,6 +165,10 @@ and choosing $\beta = 1/2$ gives the midpoint method, which we employ.
 
 The current state of the program meets the author's intent. However, in the course of research, new areas for improvement to keep up with more sophisticated numerical methods (and a better UI) were taken note of here.
 
+*Error Quantification*
+
+- For each solver, compute and print RMSE and max norm ($L_{\infty}$) error
+
 *Adaptive Time Steps*
 
 - A higher/lower order pair of computations to check error tolerance and adjust subsequent intervals.
@@ -172,7 +176,7 @@ The current state of the program meets the author's intent. However, in the cour
 
 *Toggle Uniform Tolerance or Uniform Intervals*
 
-- For comparison of numerical methods, see behavior when intervals chosen to meet a universal tolerance or when intervals are equal across methods.
+- For comparison of numerical methods, see behavior when intervals chosen to meet a universal tolerance or when intervals are equal across methods (might be infeasible or a poor comparison)
 
 *Simulation Time Animation*
 
