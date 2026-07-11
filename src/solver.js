@@ -1,3 +1,13 @@
+/**
+ * ODESolver.js
+ * 
+ * This module implements numerical solvers of the Runge-Kutta family.
+ * Notes: the output of the solvers include 'v' key for velocity, but is unused at present
+ */
+
+
+import { Solution } from './solution.js';
+
 (function (global) {
     'use strict';
 
@@ -5,7 +15,7 @@
     const ODESolver = {};
 
     /**
-     * Exact Analytical Solver
+     * Exact Analytical Solver for Damped Harmonic Oscillator
      * @param {number} t - Target evaluation time
      * @param {object} params - Input configuration { x0, v0, m, k, b }
      * @returns {Array<number>} - Returns state array [position, velocity]
@@ -34,7 +44,6 @@
             return [x, v];
         } else {
             // Underdamped case
-            // TODO: Check if the formula for omega and alpha is correct for underdamped case
             let omega = Math.sqrt(4 * m * k - b * b) / (2 * m);
             let alpha = -b / (2 * m);
             let a1 = (v0 - alpha * x0) / omega;
@@ -46,21 +55,22 @@
     };
 
     /**
-     * Coupled State-Space Derivative Function f(t, y)
+     * Coupled State-Space Derivative Function f(t, x) for Damped Harmonic Oscillator
      * @param {number} t - Current time
-     * @param {Array<number>} y - State array [position, velocity]
+     * @param {Array<number>} x - State array [position, velocity]
      * @param {object} params - Oscillator parameters
      * @returns {Array<number>} - Derivative array [dx_dt, dv_dt]
      */
-    ODESolver.calcDerivatives = function (t, y, params) {
-        const [x, v] = y; // Destructure the 2-element state array
+    ODESolver.calcDerivatives = function (t, x, params) {
+        // Destructure the 2-element state array and let x1 = x, x2 = v
+        const [x1, x2] = x; 
         const { x0, v0, m, k, b, ts, t_end } = params;
         
         // State space formulation
-        const dx_dt = v;
-        const dv_dt = (-k*x - b*v) / m;
+        const dx1_dt = x2;
+        const dx2_dt = (-k*x1 - b*x2) / m;
 
-        return [dx_dt, dv_dt];
+        return [dx1_dt, dx2_dt];
     }
 
     /**
@@ -73,22 +83,24 @@
         const steps = Math.floor(t_end/ts);
         
         let t = 0;
-        let y = [x0, v0];
+        let x = [x0, v0];
+        let y_hat = 0;
         
         const results = [];
-        results.push({ t: 0, x: y[0], v: y[1] });
+        results.push({ t: 0, x: x[0], v: x[1], e: y_hat });
 
         // Loop over the total simulation steps
         for (let i = 1; i < steps; i++) {
-            const dy_dt = ODESolver.calcDerivatives(t, y, { m, k, b });
-            y[0] += ts * dy_dt[0];
-            y[1] += ts * dy_dt[1];
+            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            x[0] += ts * dx_dt[0];
+            x[1] += ts * dx_dt[1];
 
             t += ts;
-            results.push({ t: t, x: y[0], v: y[1] });
+            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
-        return results;
+        return new Solution(results);
     };
     
     /**
@@ -101,24 +113,26 @@
         const steps = Math.floor(t_end/ts);
         
         let t = 0;
-        let y = [x0, v0];
+        let x = [x0, v0];
+        let y_hat = 0;
         
         const results = [];
-        results.push({ t: 0, x: y[0], v: y[1] });
+        results.push({ t: 0, x: x[0], v: x[1], e: y_hat });
 
         // Loop over the total simulation steps
         for (let i = 1; i < steps; i++) {
-            const dy_dt = ODESolver.calcDerivatives(t, y, { m, k, b });
-            let k1 = dy_dt;
-            let k2 = ODESolver.calcDerivatives(t + ts/2, [y[0] + ts/2 * k1[0], y[1] + ts/2 * k1[1]], { m, k, b });
-            y[0] += ts * k2[0];
-            y[1] += ts * k2[1];
+            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            let k1 = dx_dt;
+            let k2 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
+            x[0] += ts * k2[0];
+            x[1] += ts * k2[1];
 
             t += ts;
-            results.push({ t: t, x: y[0], v: y[1] });
+            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
-        return results;
+        return new Solution(results);
     };
     
     /**
@@ -131,26 +145,28 @@
         const steps = Math.floor(t_end/ts);
         
         let t = 0;
-        let y = [x0, v0];
+        let x = [x0, v0];
+        let y_hat = 0;
         
         const results = [];
-        results.push({ t: 0, x: y[0], v: y[1] });
+        results.push({ t: 0, x: x[0], v: x[1], e: y_hat });
 
         // Loop over the total simulation steps
         for (let i = 1; i < steps; i++) {
-            const dy_dt = ODESolver.calcDerivatives(t, y, { m, k, b });
-            let k1 = dy_dt;
-            let k2 = ODESolver.calcDerivatives(t + ts/2, [y[0] + ts/2 * k1[0], y[1] + ts/2 * k1[1]], { m, k, b });
-            let k3 = ODESolver.calcDerivatives(t + ts/2, [y[0] + ts/2 * k2[0], y[1] + ts/2 * k2[1]], { m, k, b });
-            let k4 = ODESolver.calcDerivatives(t + ts, [y[0] + ts * k3[0], y[1] + ts * k3[1]], { m, k, b });
-            y[0] += ts/6 * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
-            y[1] += ts/6 * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
+            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            let k1 = dx_dt;
+            let k2 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
+            let k3 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k2[0], x[1] + ts/2 * k2[1]], { m, k, b });
+            let k4 = ODESolver.calcDerivatives(t + ts, [x[0] + ts * k3[0], x[1] + ts * k3[1]], { m, k, b });
+            x[0] += ts/6 * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
+            x[1] += ts/6 * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
 
             t += ts;
-            results.push({ t: t, x: y[0], v: y[1] });
+            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
-        return results;
+        return new Solution(results);
     };
 
     // Expose the ODESolver namespace globally for use in app.js
