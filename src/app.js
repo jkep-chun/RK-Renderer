@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
         t_end: 10.0 // Simulation duration (s)
     };
 
-    let exactResults = [];
-    let eulerResults = [];
-    let rk2Results = [];
-    let rk4Results = [];
+    let exactSolution = new Solution([]);
+    let eulerSolution = new Solution([]);
+    let rk2Solution = new Solution([]);
+    let rk4Solution = new Solution([]);
 
     // 2. Query DOM elements (Buttons, Inputs, Output containers)
     // Example: const runButton = document.getElementById('run-btn');
@@ -102,23 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 3. Call approximation solver methods
-        eulerResults.length = 0;
-        rk2Results.length = 0;
-        rk4Results.length = 0;
-        eulerResults = window.ODESolver.solveEuler(eqParams);
-        rk2Results = window.ODESolver.solveRK2(eqParams);
-        rk4Results = window.ODESolver.solveRK4(eqParams);
+        exactSolution = window.ODESolver.solveExact(eqParams);
+        eulerSolution = window.ODESolver.solveEuler(eqParams);
+        rk2Solution = window.ODESolver.solveRK2(eqParams);
+        rk4Solution = window.ODESolver.solveRK4(eqParams);
 
-        // 4. Generate the exact solution over a smooth timeline for comparison
-        exactResults.length = 0;
-        const dtExact = 0.01; // Small time step for smooth analytical plotting
-        for (let t = 0; t <= eqParams.t_end; t += dtExact) {
-            const [x, v] = window.ODESolver.calcState(t, eqParams);
-            exactResults.push({ t, x, v });
-        }
-
-        // 5. Render the results
+        // 4. Render the results
         renderOutputTable();
+    }
+
+    /**
+     * Helper to format numbers dynamically
+     */
+    function formatError(val) {
+        if (val === 0) return '0.0000';
+        if (Math.abs(val) < 1e-4) {
+            return val.toExponential(4);
+        }
+        return val.toFixed(5);
     }
 
     /**
@@ -129,11 +130,50 @@ document.addEventListener('DOMContentLoaded', () => {
         let dpParams = getDisplayParams();
         let data = [];
 
+        // Update error values in the UI
+        const eulerRmsEl = document.getElementById('euler-rms');
+        const eulerLinfEl = document.getElementById('euler-linf');
+        const rk2RmsEl = document.getElementById('rk2-rms');
+        const rk2LinfEl = document.getElementById('rk2-linf');
+        const rk4RmsEl = document.getElementById('rk4-rms');
+        const rk4LinfEl = document.getElementById('rk4-linf');
+
+        if (eulerRmsEl && eulerLinfEl) {
+            eulerRmsEl.textContent = formatError(eulerSolution.getRMSE());
+            eulerLinfEl.textContent = formatError(eulerSolution.getLInfinity());
+        }
+        if (rk2RmsEl && rk2LinfEl) {
+            rk2RmsEl.textContent = formatError(rk2Solution.getRMSE());
+            rk2LinfEl.textContent = formatError(rk2Solution.getLInfinity());
+        }
+        if (rk4RmsEl && rk4LinfEl) {
+            rk4RmsEl.textContent = formatError(rk4Solution.getRMSE());
+            rk4LinfEl.textContent = formatError(rk4Solution.getLInfinity());
+        }
+
+        // Toggle faded class based on visibility
+        const eulerRow = document.getElementById('euler-row');
+        const rk2Row = document.getElementById('rk2-row');
+        const rk4Row = document.getElementById('rk4-row');
+
+        if (eulerRow) {
+            if (dpParams.showEuler) eulerRow.classList.remove('faded');
+            else eulerRow.classList.add('faded');
+        }
+        if (rk2Row) {
+            if (dpParams.showRK2) rk2Row.classList.remove('faded');
+            else rk2Row.classList.add('faded');
+        }
+        if (rk4Row) {
+            if (dpParams.showRK4) rk4Row.classList.remove('faded');
+            else rk4Row.classList.add('faded');
+        }
+
         if (dpParams.showExact) {
             // Create the individual data traces
             const traceExact = {
-                x: exactResults.map(p => p.t),
-                y: exactResults.map(p => p.x),
+                x: exactSolution.getResults().map(p => p.t),
+                y: exactSolution.getResults().map(p => p.x),
                 mode: 'lines',
                 name: 'Exact Solution',
                 line: { color: '#2ca02c', width: 3 }
@@ -143,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showEuler) {
             const traceEuler = {
-                x: eulerResults.map(p => p.t),
-                y: eulerResults.map(p => p.x),
+                x: eulerSolution.getResults().map(p => p.t),
+                y: eulerSolution.getResults().map(p => p.x),
                 mode: 'lines+markers',
                 name: 'Forward Euler',
                 marker: { size: 4 },
@@ -155,8 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showRK2) {
             const traceRK2 = {
-                x: rk2Results.map(p => p.t),
-                y: rk2Results.map(p => p.x),
+                x: rk2Solution.getResults().map(p => p.t),
+                y: rk2Solution.getResults().map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK2',
                 marker: { size: 4 },
@@ -167,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dpParams.showRK4) {
             const traceRK4 = {
-                x: rk4Results.map(p => p.t),
-                y: rk4Results.map(p => p.x),
+                x: rk4Solution.getResults().map(p => p.t),
+                y: rk4Solution.getResults().map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK4',
                 marker: { size: 4 },
@@ -178,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Find max absolute value in exact solution traces to dynamically set a good y-axis range
-        const maxVal = Math.max(...exactResults.map(p => Math.abs(p.x)));
+        const maxVal = Math.max(...exactSolution.getResults().map(p => Math.abs(p.x)));
 
         const layout = {
             xaxis: { title: 'Time (seconds)', gridcolor: '#eee', range: [0, eqParams.t_end] },

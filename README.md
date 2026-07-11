@@ -165,10 +165,6 @@ and choosing $\beta = 1/2$ gives the midpoint method, which we employ.
 
 The current state of the program meets the author's intent. However, in the course of research, new areas for improvement to keep up with more sophisticated numerical methods (and a better UI) were taken note of here.
 
-*Error Quantification*
-
-- For each solver, compute and print RMSE and max norm ($L_{\infty}$) error
-
 *Adaptive Time Steps*
 
 - A higher/lower order pair of computations to check error tolerance and adjust subsequent intervals.
