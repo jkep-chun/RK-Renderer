@@ -199,6 +199,48 @@
         // This method is more complex and requires adaptive step sizing
         // For now, we can return an empty array or throw an error
         throw new Error("Dormand-Prince 4(5) method not yet implemented.");
+
+        const { x0, v0, m, k, b, ts, t_end } = params;
+        const min_dt = ts;
+
+        const sf = 0.9; // Safety factor
+        const tol = 1e-6; // Tolerance for error control
+
+        let x_last = [x0, v0];
+        let t = 0;
+        let x = [x0, v0];
+        let y_hat = 0;
+        let dt = ts;
+
+        const results = [];
+        results.push({ t: 0, x: x[0], v: x[1], e: y_hat });
+
+        const tableu = {
+            a: [
+                [],
+                [1/5],
+                [3/40, 9/40],
+                [44/45, -56/15, 32/9],
+                [19372/6561, -25360/2187, 64448/6561, -212/729],
+                [9017/3168, -355/33, 46732/5247, 49/176, -5103/18656],
+                [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84]
+            ],
+            b: math.matrix([[35/384], [0], [500/1113], [125/192], [-2187/6784], [11/84], [0]]),
+            b_hat: math.matrix([[5179/57600], [0], [7571/16695], [393/640], [-92097/339200], [187/2100], [1/40]]),
+            c: [0, 1/5, 3/10, 4/5, 8/9, 1, 1]
+        };
+
+        while (t < t_end) {
+            // Implement the DP45 algorithm here
+            // This will involve calculating k1, k2, k3, k4, k5, k6
+            // and estimating the error to adjust the step size
+
+            // Sequentially compute the k values
+
+            x += math.multiply(k_matrix, tableu.b)
+
+            results.push({ t: t, x: x[0], v: x[1], e: y_hat });
+        }
     }
 
     // Expose the ODESolver namespace globally for use in app.js
