@@ -110,12 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         eulerSolution = window.ODESolver.solveEuler(eqParams);
         rk2Solution = window.ODESolver.solveRK2(eqParams);
         rk4Solution = window.ODESolver.solveRK4(eqParams);
-        try {
-            dp45Solution = window.ODESolver.solveDP45(eqParams);
-        } catch (e) {
-            console.error("DP45 solver error:", e);
-            dp45Solution = new Solution([]);
-        }
+        dp45Solution = window.ODESolver.solveDP45(eqParams);
 
         // 4. Render the results
         renderOutputTable();
