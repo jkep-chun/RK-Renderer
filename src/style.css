@@ -244,6 +244,9 @@ main {
 .dot.rk4 {
     background-color: #1f77b4;
 }
+.dot.dp45 {
+    background-color: #9467bd;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

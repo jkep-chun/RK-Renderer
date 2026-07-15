@@ -1,8 +1,10 @@
 # Runge-Kutta Stability Renderer
 
-This program compares the performance of Forward Euler's method against 2nd-order midpoint Runge-Kutta (RK2) and the classic 4th-order Runge-Kutta (RK4) using a configurable damped harmonic oscillator whose exact analytical solution is known.
+This program compares the performance of Forward Euler's method against 2nd-order midpoint Runge-Kutta and the classic 4th-order Runge-Kutta on a configurable damped harmonic oscillator whose exact analytical solution is known.
 
 Granted, this is a linear system, and if the intent was to achieve as accurate as possible a solution, one could simply use a state transition matrix. However, the purpose is simply to improve the author's familiarity with numerical methods, differential equations, HTML, and JavaScript. So for now, it is sufficient to show that Euler's method and the Runge-Kutta schemes differ in accuracy.
+
+Furthermore, being so contrived, this project would be more aptly titled "Explicit Runge-Kutta Stability Renderer", since the author's knowledge of differential equations belongs solely in the non-stiff realm.
 
 ---
 

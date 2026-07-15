@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let eulerSolution = new Solution([]);
     let rk2Solution = new Solution([]);
     let rk4Solution = new Solution([]);
+    let dp45Solution = new Solution([]);
 
     // 2. Query DOM elements (Buttons, Inputs, Output containers)
     // Example: const runButton = document.getElementById('run-btn');
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const show_euler = document.getElementById('show-euler');
     const show_rk2 = document.getElementById('show-rk2');
     const show_rk4 = document.getElementById('show-rk4');
+    const show_dp45 = document.getElementById('show-dp45');
 
     // 3. Attach event listeners to buttons and inputs
     if (refreshButton) refreshButton.addEventListener('click', runSimulation);
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (show_euler) show_euler.addEventListener('change', renderOutputTable);
     if (show_rk2) show_rk2.addEventListener('change', renderOutputTable);
     if (show_rk4) show_rk4.addEventListener('change', renderOutputTable);
+    if (show_dp45) show_dp45.addEventListener('change', renderOutputTable);
 
     /**
      * Gather parameters from UI input elements (if you implement them in HTML)
@@ -82,8 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const showEuler = document.getElementById('show-euler').checked;
         const showRK2 = document.getElementById('show-rk2').checked;
         const showRK4 = document.getElementById('show-rk4').checked;
+        const showDP45 = document.getElementById('show-dp45').checked;
         
-        return { showExact, showEuler, showRK2, showRK4 };
+        return { showExact, showEuler, showRK2, showRK4, showDP45 };
     }
 
     /**
@@ -106,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         eulerSolution = window.ODESolver.solveEuler(eqParams);
         rk2Solution = window.ODESolver.solveRK2(eqParams);
         rk4Solution = window.ODESolver.solveRK4(eqParams);
+        dp45Solution = window.ODESolver.solveDP45(eqParams);
 
         // 4. Render the results
         renderOutputTable();
@@ -137,6 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const rk2LinfEl = document.getElementById('rk2-linf');
         const rk4RmsEl = document.getElementById('rk4-rms');
         const rk4LinfEl = document.getElementById('rk4-linf');
+        const dp45RmsEl = document.getElementById('dp45-rms');
+        const dp45LinfEl = document.getElementById('dp45-linf');
 
         if (eulerRmsEl && eulerLinfEl) {
             eulerRmsEl.textContent = formatError(eulerSolution.getRMSE());
@@ -150,11 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
             rk4RmsEl.textContent = formatError(rk4Solution.getRMSE());
             rk4LinfEl.textContent = formatError(rk4Solution.getLInfinity());
         }
+        if (dp45RmsEl && dp45LinfEl) {
+            dp45RmsEl.textContent = formatError(dp45Solution.getRMSE());
+            dp45LinfEl.textContent = formatError(dp45Solution.getLInfinity());
+        }
 
         // Toggle faded class based on visibility
         const eulerRow = document.getElementById('euler-row');
         const rk2Row = document.getElementById('rk2-row');
         const rk4Row = document.getElementById('rk4-row');
+        const dp45Row = document.getElementById('dp45-row');
 
         if (eulerRow) {
             if (dpParams.showEuler) eulerRow.classList.remove('faded');
@@ -167,6 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rk4Row) {
             if (dpParams.showRK4) rk4Row.classList.remove('faded');
             else rk4Row.classList.add('faded');
+        }
+        if (dp45Row) {
+            if (dpParams.showDP45) dp45Row.classList.remove('faded');
+            else dp45Row.classList.add('faded');
         }
 
         if (dpParams.showExact) {
@@ -215,6 +231,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 line: { color: '#1f77b4', width: 1 }
             };
             data.push(traceRK4);
+        }
+        
+        if (dpParams.showDP45 && dp45Solution.getResults().length > 0) {
+            const traceDP45 = {
+                x: dp45Solution.getResults().map(p => p.t),
+                y: dp45Solution.getResults().map(p => p.x),
+                mode: 'lines+markers',
+                name: 'DP45',
+                marker: { size: 4 },
+                line: { color: '#9467bd', width: 1 }
+            };
+            data.push(traceDP45);
         }
         
         // Find max absolute value in exact solution traces to dynamically set a good y-axis range

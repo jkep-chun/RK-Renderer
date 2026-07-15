@@ -11,6 +11,47 @@
     // Plain object to hold solver methods has less overhead than a class
     const ODESolver = {};
 
+    // Array helper functions
+    const arrAdd = function(u, v) {
+        if (u.length === v.length) {
+            let sum = [];
+            for (let i = 0; i < u.length; i++) {
+                sum.push(u[i] + v[i]);
+            }
+            return sum;
+        } else {
+            throw new Error("Mismatched array dimensions");
+        }
+    }
+    
+    const arrDiff = function(u, v) {
+        if (u.length === v.length) {
+            let diff = [];
+            for (let i = 0; i < u.length; i++) {
+                diff.push(u[i] - v[i]);
+            }
+            return diff;
+        } else {
+            throw new Error("Mismatched array dimensions");
+        }
+    }
+
+    const arrMult = function(u, b) {
+        let result = [];
+        for (let i = 0; i < u.length; i++) {
+            result.push(b*u[i]);
+        }
+        return result;
+    }
+
+    const arrDotMat = function(M, x) {
+        let sum = [0, 0];
+        for (let i = 0; i < M.length; i++) {
+            sum = arrAdd(sum, arrMult(M[i], x[i]));
+        }
+        return sum;
+    }
+
     /**
      * Exact Analytical Solver for Damped Harmonic Oscillator
      * @param {number} t - Target evaluation time
@@ -193,6 +234,71 @@
 
         return new Solution(results);
     };
+
+    ODESolver.solveDP45 = function (params) {
+
+        const { x0, v0, m, k, b, ts, t_end } = params;
+
+        const sf = 0.9; // Safety factor
+        const tol = 1e-4; // Tolerance for error control
+
+        let t = 0;
+        let x = [x0, v0];
+        let y_hat = 0;
+        let dt = ts;
+
+        const results = [];
+        results.push({ t: 0, x: x[0], v: x[1], e: y_hat });
+
+        const tableu = {
+            a: [
+                [],
+                [1/5],
+                [3/40, 9/40],
+                [44/45, -56/15, 32/9],
+                [19372/6561, -25360/2187, 64448/6561, -212/729],
+                [9017/3168, -355/33, 46732/5247, 49/176, -5103/18656],
+                [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84]
+            ],
+            b: [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0],
+            b_hat: [5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40],
+            c: [0, 1/5, 3/10, 4/5, 8/9, 1, 1]
+        };
+
+        while (t < t_end) {
+            dt = Math.min(dt, t_end - t);
+
+            let ks = [];
+
+            for (let i = 0; i < tableu.c.length; i++) {
+                let Deltax = [0, 0];
+
+                if (i === 0) {
+                    ks.push(ODESolver.calcDerivatives(t, x, params));
+                } else {
+                    for (let j = 0; j < i; j++) {
+                        Deltax = arrAdd(arrMult(ks[j], tableu.a[i][j]*dt), Deltax);
+                    }
+                    ks.push(ODESolver.calcDerivatives(t + tableu.c[i]*dt, arrAdd(x, Deltax), params));
+                }
+            }
+
+            let dx = arrDotMat(ks, arrMult(tableu.b, dt));
+            let dx_hat = arrDotMat(ks, arrMult(tableu.b_hat, dt));
+
+            let error = Math.hypot(...arrDiff(dx, dx_hat));
+
+            if (error <= tol) {
+                x = arrAdd(x, dx);
+                t += dt;
+                y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+                results.push({ t: t, x: x[0], v: x[1], e: y_hat });
+            }
+            dt *= sf*Math.pow(tol/error, 1/5);
+        }
+
+        return new Solution(results);
+    }
 
     // Expose the ODESolver namespace globally for use in app.js
     global.ODESolver = ODESolver;
