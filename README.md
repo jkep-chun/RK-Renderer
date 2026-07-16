@@ -167,10 +167,9 @@ and choosing $\beta = 1/2$ gives the midpoint method, which we employ.
 
 The current state of the program meets the author's intent. However, in the course of research, new areas for improvement to keep up with more sophisticated numerical methods (and a better UI) were taken note of here.
 
-*Adaptive Time Steps*
+*Quantifiable measure of effort for each method*
 
-- A higher/lower order pair of computations to check error tolerance and adjust subsequent intervals.
-- An ambitious goal would be implementing the Dormand-Prince method.
+- For a comparison to determine feasibility for real time visual simulation
 
 *Toggle Uniform Tolerance or Uniform Intervals*
 
@@ -179,3 +178,12 @@ The current state of the program meets the author's intent. However, in the cour
 *Simulation Time Animation*
 
 - An option to draw the plot in simulation time.
+- Features vertical cursor, pause/play and restart
+
+*Generalization to nth order linear ODEs*
+
+- Build a solver that transforms equation into some canonical state space formulation
+
+*Approximation Method Class*
+
+- Accepts Butcher Tableau coefficients, etc. to reuse logic
