@@ -1,0 +1,11 @@
+{
+  "name": "rk-renderer",
+  "version": "1.0.0",
+  "description": "Runge-Kutta numerical solver and ODE visual stability renderer",
+  "main": "src/frontend/js/app.js",
+  "scripts": {
+    "start": "python -m uvicorn src.backend.app:app --reload --port 8000"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
