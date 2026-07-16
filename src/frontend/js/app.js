@@ -1,10 +1,9 @@
 /**
  * app.js - Application Setup and UI Handler Stub
- * 
- * Syntax Guideline:
- * - Listen for DOMContentLoaded to ensure elements are loaded before querying.
- * - Retrieve user inputs, convert them to numbers, and run solvers.
  */
+
+import { Solver } from './solver.js';
+import { Solution } from './solution.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     'use strict';
@@ -99,18 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log("Running simulation...");
 
-        // Check if solver is loaded globally
-        if (!window.ODESolver) {
-            console.error("ODESolver not found. Check if solver.js is loaded correctly.");
-            return;
-        }
-
         // 3. Call approximation solver methods
-        exactSolution = window.ODESolver.solveExact(eqParams);
-        eulerSolution = window.ODESolver.solveEuler(eqParams);
-        rk2Solution = window.ODESolver.solveRK2(eqParams);
-        rk4Solution = window.ODESolver.solveRK4(eqParams);
-        dp45Solution = window.ODESolver.solveDP45(eqParams);
+        exactSolution = Solver.solveExact(eqParams);
+        eulerSolution = Solver.solveEuler(eqParams);
+        rk2Solution = Solver.solveRK2(eqParams);
+        rk4Solution = Solver.solveRK4(eqParams);
+        dp45Solution = Solver.solveDP45(eqParams);
 
         // 4. Render the results
         renderOutputTable();
@@ -192,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: exactSolution.getResults().map(p => p.x),
                 mode: 'lines',
                 name: 'Exact Solution',
-                line: { color: '#2ca02c', width: 3 }
+                line: { color: '#2ca02c', width: 1 }
             };
             data.push(traceExact);
         }
