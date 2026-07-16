@@ -1,64 +1,59 @@
 /**
- * ODESolver.js
+ * solver.js
  * 
- * This module implements numerical solvers of the Runge-Kutta family.
+ * This object literal implements numerical solvers of the Runge-Kutta family.
  * Notes: the output of the solvers include 'v' key for velocity, but is unused at present
  */
 
-(function (global) {
-    'use strict';
+import { Solution } from './solution.js'
 
-    // Plain object to hold solver methods has less overhead than a class
-    const ODESolver = {};
-
-    // Array helper functions
-    const arrAdd = function(u, v) {
-        if (u.length === v.length) {
-            let sum = [];
-            for (let i = 0; i < u.length; i++) {
-                sum.push(u[i] + v[i]);
-            }
-            return sum;
-        } else {
-            throw new Error("Mismatched array dimensions");
-        }
-    }
-    
-    const arrDiff = function(u, v) {
-        if (u.length === v.length) {
-            let diff = [];
-            for (let i = 0; i < u.length; i++) {
-                diff.push(u[i] - v[i]);
-            }
-            return diff;
-        } else {
-            throw new Error("Mismatched array dimensions");
-        }
-    }
-
-    const arrMult = function(u, b) {
-        let result = [];
+// Helper functions
+function arrAdd(u, v) {
+    if (u.length === v.length) {
+        let sum = [];
         for (let i = 0; i < u.length; i++) {
-            result.push(b*u[i]);
-        }
-        return result;
-    }
-
-    const arrDotMat = function(M, x) {
-        let sum = [0, 0];
-        for (let i = 0; i < M.length; i++) {
-            sum = arrAdd(sum, arrMult(M[i], x[i]));
+            sum.push(u[i] + v[i]);
         }
         return sum;
+    } else {
+        throw new Error("Mismatched array dimensions");
     }
+}
+function arrDiff(u, v) {
+    if (u.length === v.length) {
+        let diff = [];
+        for (let i = 0; i < u.length; i++) {
+            diff.push(u[i] - v[i]);
+        }
+        return diff;
+    } else {
+        throw new Error("Mismatched array dimensions");
+    }
+}
+function arrMult(u, b) {
+    let result = [];
+    for (let i = 0; i < u.length; i++) {
+        result.push(b*u[i]);
+    }
+    return result;
+}
+function arrDotMat(M, x) {
+    let sum = [0, 0];
+    for (let i = 0; i < M.length; i++) {
+        sum = arrAdd(sum, arrMult(M[i], x[i]));
+    }
+    return sum;
+}
 
+export const Solver = {
+   
     /**
      * Exact Analytical Solver for Damped Harmonic Oscillator
      * @param {number} t - Target evaluation time
      * @param {object} params - Input configuration { x0, v0, m, k, b }
      * @returns {Array<number>} - Returns state array [position, velocity]
      */
-    ODESolver.calcState = function (t, params) {
+    calcState(t, params) {
         const { x0, v0, m, k, b, ts, t_end } = params;
 
         let discriminant = b*b - 4*m*k;
@@ -90,7 +85,7 @@
             let v = Math.exp(alpha * t) * (a2 * (alpha * Math.cos(omega * t) - omega * Math.sin(omega * t)) + a1 * (alpha * Math.sin(omega * t) + omega * Math.cos(omega * t)));
             return [x, v];
         }
-    };
+    },
 
     /**
      * Coupled State-Space Derivative Function f(t, x) for Damped Harmonic Oscillator
@@ -99,7 +94,7 @@
      * @param {object} params - Oscillator parameters
      * @returns {Array<number>} - Derivative array [dx_dt, dv_dt]
      */
-    ODESolver.calcDerivatives = function (t, x, params) {
+    calcDerivatives(t, x, params) {
         // Destructure the 2-element state array and let x1 = x, x2 = v
         const [x1, x2] = x; 
         const { x0, v0, m, k, b, ts, t_end } = params;
@@ -109,14 +104,14 @@
         const dx2_dt = (-k*x1 - b*x2) / m;
 
         return [dx1_dt, dx2_dt];
-    }
+    },
 
     /**
      * Exact Analytical Solver
      * @param {object} params - Input configuration { x0, v0, m, k, b }
      * @returns {Array<object>} - Array of states [{ t, x, v }, ...]
      */
-    ODESolver.solveExact = function (params) {
+    solveExact(params) {
         const { x0, v0, m, k, b, ts, t_end } = params;
         const dt = Math.max(0.01, ts / 5); // Ensure a minimum dt for smoothness
         const steps = Math.floor(t_end/dt);
@@ -132,19 +127,19 @@
         // Loop over the total simulation steps
         for (let i = 1; i <= steps; i++) {
             t += dt;
-            x = ODESolver.calcState(t, { x0, v0, m, k, b });
+            x = Solver.calcState(t, { x0, v0, m, k, b });
             results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
         return new Solution(results);
-    };
+    },
 
     /**
      * Forward Euler Method
      * @param {object} params - Configuration { x0, v0, ts, t_end, m, k, b }
      * @returns {Array<object>} - Array of states [{ t, x, v }, ...]
      */
-    ODESolver.solveEuler = function (params) {
+    solveEuler(params) {
         const { x0, v0, m, k, b, ts, t_end } = params;
         const steps = Math.floor(t_end/ts);
         
@@ -157,24 +152,24 @@
 
         // Loop over the total simulation steps
         for (let i = 1; i <= steps; i++) {
-            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            const dx_dt = Solver.calcDerivatives(t, x, { m, k, b });
             x[0] += ts * dx_dt[0];
             x[1] += ts * dx_dt[1];
 
             t += ts;
-            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            y_hat = x[0] - Solver.calcState(t, { x0, v0, m, k, b })[0];
             results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
         return new Solution(results);
-    };
+    },
     
     /**
      * Runge-Kutta 2nd Order Method (RK2) 
      * @param {object} params  - Configuration { x0, v0, ts, t_end, m, k, b }
      * @returns {Array<object>} - Array of states [{ t, x, v }, ...]
      */
-    ODESolver.solveRK2 = function (params) {
+    solveRK2(params) {
         const { x0, v0, m, k, b, ts, t_end } = params;
         const steps = Math.floor(t_end/ts);
         
@@ -187,26 +182,26 @@
 
         // Loop over the total simulation steps
         for (let i = 1; i <= steps; i++) {
-            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            const dx_dt = Solver.calcDerivatives(t, x, { m, k, b });
             let k1 = dx_dt;
-            let k2 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
+            let k2 = Solver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
             x[0] += ts * k2[0];
             x[1] += ts * k2[1];
 
             t += ts;
-            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            y_hat = x[0] - Solver.calcState(t, { x0, v0, m, k, b })[0];
             results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
         return new Solution(results);
-    };
+    },
     
     /**
      * Runge-Kutta 4th Order Method (RK4) 
      * @param {object} params - Configuration { x0, v0, ts, t_end, m, k, b }
      * @returns {Array<object>} - Array of states [{ t, x, v }, ...]
      */
-    ODESolver.solveRK4 = function (params) {
+    solveRK4(params) {
         const { x0, v0, m, k, b, ts, t_end } = params;
         const steps = Math.floor(t_end/ts);
         
@@ -219,23 +214,23 @@
 
         // Loop over the total simulation steps
         for (let i = 1; i <= steps; i++) {
-            const dx_dt = ODESolver.calcDerivatives(t, x, { m, k, b });
+            const dx_dt = Solver.calcDerivatives(t, x, { m, k, b });
             let k1 = dx_dt;
-            let k2 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
-            let k3 = ODESolver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k2[0], x[1] + ts/2 * k2[1]], { m, k, b });
-            let k4 = ODESolver.calcDerivatives(t + ts, [x[0] + ts * k3[0], x[1] + ts * k3[1]], { m, k, b });
+            let k2 = Solver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k1[0], x[1] + ts/2 * k1[1]], { m, k, b });
+            let k3 = Solver.calcDerivatives(t + ts/2, [x[0] + ts/2 * k2[0], x[1] + ts/2 * k2[1]], { m, k, b });
+            let k4 = Solver.calcDerivatives(t + ts, [x[0] + ts * k3[0], x[1] + ts * k3[1]], { m, k, b });
             x[0] += ts/6 * (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
             x[1] += ts/6 * (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
 
             t += ts;
-            y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+            y_hat = x[0] - Solver.calcState(t, { x0, v0, m, k, b })[0];
             results.push({ t: t, x: x[0], v: x[1], e: y_hat });
         }
 
         return new Solution(results);
-    };
+    },
 
-    ODESolver.solveDP45 = function (params) {
+    solveDP45(params) {
 
         const { x0, v0, m, k, b, ts, t_end } = params;
 
@@ -274,12 +269,12 @@
                 let Deltax = [0, 0];
 
                 if (i === 0) {
-                    ks.push(ODESolver.calcDerivatives(t, x, params));
+                    ks.push(Solver.calcDerivatives(t, x, params));
                 } else {
                     for (let j = 0; j < i; j++) {
                         Deltax = arrAdd(arrMult(ks[j], tableu.a[i][j]*dt), Deltax);
                     }
-                    ks.push(ODESolver.calcDerivatives(t + tableu.c[i]*dt, arrAdd(x, Deltax), params));
+                    ks.push(Solver.calcDerivatives(t + tableu.c[i]*dt, arrAdd(x, Deltax), params));
                 }
             }
 
@@ -291,7 +286,7 @@
             if (error <= tol) {
                 x = arrAdd(x, dx);
                 t += dt;
-                y_hat = x[0] - ODESolver.calcState(t, { x0, v0, m, k, b })[0];
+                y_hat = x[0] - Solver.calcState(t, { x0, v0, m, k, b })[0];
                 results.push({ t: t, x: x[0], v: x[1], e: y_hat });
             }
             dt *= sf*Math.pow(tol/error, 1/5);
@@ -300,7 +295,4 @@
         return new Solution(results);
     }
 
-    // Expose the ODESolver namespace globally for use in app.js
-    global.ODESolver = ODESolver;
-
-})(typeof window !== 'undefined' ? window : global);
+}
