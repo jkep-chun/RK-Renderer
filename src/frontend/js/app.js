@@ -25,8 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let rk4Solution = new Solution([]);
     let dp45Solution = new Solution([]);
 
+    // Playback state variables
+    let isPlaying = false;
+    let animationTime = 0.0; // Current playback time in simulation seconds
+    let lastFrameTime = 0.0; // Timestamp of the last frame
+
     // 2. Query DOM elements
     const refreshButton = document.getElementById('refresh-btn');
+    const playPauseButton = document.getElementById('play-pause-btn');
     const show_exact = document.getElementById('show-exact');
     const show_euler = document.getElementById('show-euler');
     const show_rk2 = document.getElementById('show-rk2');
@@ -35,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Attach event listeners
     if (refreshButton) refreshButton.addEventListener('click', runSimulation);
+    if (playPauseButton) playPauseButton.addEventListener('click', togglePlayPause);
+    
+    // Checkboxes trigger redrawing
     if (show_exact) show_exact.addEventListener('change', renderOutputTable);
     if (show_euler) show_euler.addEventListener('change', renderOutputTable);
     if (show_rk2) show_rk2.addEventListener('change', renderOutputTable);
@@ -79,13 +88,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Toggles play/pause state
+     */
+    function togglePlayPause() {
+        isPlaying = !isPlaying;
+        if (playPauseButton) {
+            playPauseButton.textContent = isPlaying ? "Pause" : "Play";
+            playPauseButton.style.backgroundColor = isPlaying ? "#475569" : "#3b82f6"; // Slate when active, blue when paused
+        }
+
+        if (isPlaying) {
+            const eqParams = getEquationParams();
+            // Loop back if we were at the end
+            if (animationTime >= eqParams.t_end) {
+                animationTime = 0.0;
+            }
+            lastFrameTime = performance.now();
+            requestAnimationFrame(animationTick);
+        }
+    }
+
+    /**
+     * Animation frame handler
+     * @param {number} timestamp - Current high-precision timestamp
+     */
+    function animationTick(timestamp) {
+        if (!isPlaying) return;
+
+        const eqParams = getEquationParams();
+        const dt = (timestamp - lastFrameTime) / 1000.0; // Convert to seconds
+        lastFrameTime = timestamp;
+
+        // Advance simulation time
+        animationTime += dt;
+
+        // If we reach the end, wrap around
+        if (animationTime >= eqParams.t_end) {
+            animationTime = 0.0;
+        }
+
+        // Render current state
+        renderOutputTable();
+
+        // Queue next frame
+        requestAnimationFrame(animationTick);
+    }
+
+    /**
      * Executes the simulations by fetching from the backend API
      */
     async function runSimulation() {
         const eqParams = getEquationParams();
         console.log("Fetching simulation results from backend API...");
 
-        // Disable refresh button to indicate loading
+        // Disable UI controls while loading
         if (refreshButton) {
             refreshButton.disabled = true;
             refreshButton.textContent = "Loading...";
@@ -95,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Build query parameters
             const queryParams = new URLSearchParams(eqParams).toString();
             
-            // Fetch from API (relative URL works when served from the same FastAPI server)
+            // Fetch from API
             const response = await fetch(`/api/solve?${queryParams}`);
             if (!response.ok) {
                 throw new Error(`Server returned error: ${response.status} ${response.statusText}`);
@@ -110,12 +166,29 @@ document.addEventListener('DOMContentLoaded', () => {
             rk4Solution = new Solution(data.rk4);
             dp45Solution = new Solution(data.dp45);
 
-            // Render output dashboard
-            renderOutputTable();
+            // Reset animation timing
+            animationTime = 0.0;
+            
+            // Auto-play on load / parameters refresh
+            isPlaying = true;
+            if (playPauseButton) {
+                playPauseButton.textContent = "Pause";
+                playPauseButton.style.backgroundColor = "#475569";
+            }
+            
+            lastFrameTime = performance.now();
+            requestAnimationFrame(animationTick);
 
         } catch (error) {
             console.error("Failed to run simulation:", error);
             alert("Failed to communicate with Python Backend. Please ensure the backend is running at http://localhost:8000\n\nCommand to run:\nnpm start");
+            
+            // Stop playing if communication fails
+            isPlaying = false;
+            if (playPauseButton) {
+                playPauseButton.textContent = "Play";
+                playPauseButton.style.backgroundColor = "#3b82f6";
+            }
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;
@@ -142,7 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const eqParams = getEquationParams();
         const dpParams = getDisplayParams();
 
-        // Update error values in the UI
+        // Calculate dynamic solutions up to current animationTime
+        const currentExact = new Solution(exactSolution.getResults().filter(p => p.t <= animationTime));
+        const currentEuler = new Solution(eulerSolution.getResults().filter(p => p.t <= animationTime));
+        const currentRK2 = new Solution(rk2Solution.getResults().filter(p => p.t <= animationTime));
+        const currentRK4 = new Solution(rk4Solution.getResults().filter(p => p.t <= animationTime));
+        const currentDP45 = new Solution(dp45Solution.getResults().filter(p => p.t <= animationTime));
+
+        // Update error values in the UI dynamically
         const eulerRmsEl = document.getElementById('euler-rms');
         const eulerLinfEl = document.getElementById('euler-linf');
         const rk2RmsEl = document.getElementById('rk2-rms');
@@ -153,20 +233,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const dp45LinfEl = document.getElementById('dp45-linf');
 
         if (eulerRmsEl && eulerLinfEl) {
-            eulerRmsEl.textContent = formatError(eulerSolution.getRMSE());
-            eulerLinfEl.textContent = formatError(eulerSolution.getLInfinity());
+            eulerRmsEl.textContent = formatError(currentEuler.getRMSE());
+            eulerLinfEl.textContent = formatError(currentEuler.getLInfinity());
         }
         if (rk2RmsEl && rk2LinfEl) {
-            rk2RmsEl.textContent = formatError(rk2Solution.getRMSE());
-            rk2LinfEl.textContent = formatError(rk2Solution.getLInfinity());
+            rk2RmsEl.textContent = formatError(currentRK2.getRMSE());
+            rk2LinfEl.textContent = formatError(currentRK2.getLInfinity());
         }
         if (rk4RmsEl && rk4LinfEl) {
-            rk4RmsEl.textContent = formatError(rk4Solution.getRMSE());
-            rk4LinfEl.textContent = formatError(rk4Solution.getLInfinity());
+            rk4RmsEl.textContent = formatError(currentRK4.getRMSE());
+            rk4LinfEl.textContent = formatError(currentRK4.getLInfinity());
         }
         if (dp45RmsEl && dp45LinfEl) {
-            dp45RmsEl.textContent = formatError(dp45Solution.getRMSE());
-            dp45LinfEl.textContent = formatError(dp45Solution.getLInfinity());
+            dp45RmsEl.textContent = formatError(currentDP45.getRMSE());
+            dp45LinfEl.textContent = formatError(currentDP45.getLInfinity());
         }
 
         // Toggle faded class based on visibility
@@ -200,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rk4Solution,
             dp45Solution
         };
-        ChartManager.render('plot-container', solutions, eqParams, dpParams);
+        ChartManager.render('plot-container', solutions, eqParams, dpParams, animationTime);
     }
 
     // Run once on load
