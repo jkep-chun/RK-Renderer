@@ -9,15 +9,17 @@ export const ChartManager = {
      * @param {object} solutions - Object containing Solution instances
      * @param {object} eqParams - Physics parameters
      * @param {object} dpParams - Display visibility parameters
+     * @param {number} animationTime - Current time of the animation playback (seconds)
      */
-    render(containerId, solutions, eqParams, dpParams) {
+    render(containerId, solutions, eqParams, dpParams, animationTime = eqParams.t_end) {
         const { exactSolution, eulerSolution, rk2Solution, rk4Solution, dp45Solution } = solutions;
         const data = [];
 
         if (dpParams.showExact && exactSolution) {
+            const results = exactSolution.getResults().filter(p => p.t <= animationTime);
             data.push({
-                x: exactSolution.getResults().map(p => p.t),
-                y: exactSolution.getResults().map(p => p.x),
+                x: results.map(p => p.t),
+                y: results.map(p => p.x),
                 mode: 'lines',
                 name: 'Exact Solution',
                 line: { color: '#2ca02c', width: 1 }
@@ -25,9 +27,10 @@ export const ChartManager = {
         }
 
         if (dpParams.showEuler && eulerSolution) {
+            const results = eulerSolution.getResults().filter(p => p.t <= animationTime);
             data.push({
-                x: eulerSolution.getResults().map(p => p.t),
-                y: eulerSolution.getResults().map(p => p.x),
+                x: results.map(p => p.t),
+                y: results.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'Forward Euler',
                 marker: { size: 4 },
@@ -36,9 +39,10 @@ export const ChartManager = {
         }
 
         if (dpParams.showRK2 && rk2Solution) {
+            const results = rk2Solution.getResults().filter(p => p.t <= animationTime);
             data.push({
-                x: rk2Solution.getResults().map(p => p.t),
-                y: rk2Solution.getResults().map(p => p.x),
+                x: results.map(p => p.t),
+                y: results.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK2',
                 marker: { size: 4 },
@@ -47,9 +51,10 @@ export const ChartManager = {
         }
 
         if (dpParams.showRK4 && rk4Solution) {
+            const results = rk4Solution.getResults().filter(p => p.t <= animationTime);
             data.push({
-                x: rk4Solution.getResults().map(p => p.t),
-                y: rk4Solution.getResults().map(p => p.x),
+                x: results.map(p => p.t),
+                y: results.map(p => p.x),
                 mode: 'lines+markers',
                 name: 'RK4',
                 marker: { size: 4 },
@@ -57,20 +62,42 @@ export const ChartManager = {
             });
         }
 
-        if (dpParams.showDP45 && dp45Solution && dp45Solution.getResults().length > 0) {
-            data.push({
-                x: dp45Solution.getResults().map(p => p.t),
-                y: dp45Solution.getResults().map(p => p.x),
-                mode: 'lines+markers',
-                name: 'DP45',
-                marker: { size: 4 },
-                line: { color: '#9467bd', width: 1 }
-            });
+        if (dpParams.showDP45 && dp45Solution) {
+            const results = dp45Solution.getResults().filter(p => p.t <= animationTime);
+            if (results.length > 0) {
+                data.push({
+                    x: results.map(p => p.t),
+                    y: results.map(p => p.x),
+                    mode: 'lines+markers',
+                    name: 'DP45',
+                    marker: { size: 4 },
+                    line: { color: '#9467bd', width: 1 }
+                });
+            }
         }
 
         // Find max absolute value in exact solution traces to dynamically set a good y-axis range
         const exactResults = exactSolution ? exactSolution.getResults() : [];
         const maxVal = exactResults.length > 0 ? Math.max(...exactResults.map(p => Math.abs(p.x))) : 1.0;
+
+        // Vertical cursor tracking the horizontal playback progress
+        const shapes = [];
+        if (animationTime !== undefined && animationTime <= eqParams.t_end) {
+            shapes.push({
+                type: 'line',
+                xref: 'x',
+                yref: 'y',
+                x0: animationTime,
+                y0: -1.3 * maxVal,
+                x1: animationTime,
+                y1: 1.3 * maxVal,
+                line: {
+                    color: 'rgba(71, 85, 105, 0.7)', // Slate-600
+                    width: 2,
+                    dash: 'dash'
+                }
+            });
+        }
 
         const layout = {
             xaxis: { title: 'Time (seconds)', gridcolor: '#eee', range: [0, eqParams.t_end] },
@@ -78,7 +105,8 @@ export const ChartManager = {
             showlegend: false,
             plot_bgcolor: '#fafafa',
             paper_bgcolor: '#ffffff',
-            margin: { t: 50, b: 50, l: 60, r: 20 }
+            margin: { t: 50, b: 50, l: 60, r: 20 },
+            shapes: shapes
         };
 
         Plotly.newPlot(containerId, data, layout);
