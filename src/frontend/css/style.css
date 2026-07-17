@@ -94,6 +94,22 @@ body {
     background-color: #1e293b;
 }
 
+/* Play/Pause button */
+#play-pause-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #475569;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    margin-top: 10px;
+}
+
 /* Right Content Area */
 .content-container {
     flex: 1;
