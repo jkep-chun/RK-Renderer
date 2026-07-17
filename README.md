@@ -1,8 +1,8 @@
 # Runge-Kutta Stability Renderer
 
-This program compares the performance of Forward Euler's method against 2nd-order midpoint Runge-Kutta and the classic 4th-order Runge-Kutta on a configurable damped harmonic oscillator whose exact analytical solution is known.
+This program compares the performance of various members of the Runge-Kutta family of solvers on a damped harmonic oscillator whose exact analytical solution is known.
 
-Granted, this is a linear system, and if the intent was to achieve as accurate as possible a solution, one could simply use a state transition matrix. However, the purpose is simply to improve the author's familiarity with numerical methods, differential equations, HTML, and JavaScript. So for now, it is sufficient to show that Euler's method and the Runge-Kutta schemes differ in accuracy.
+Granted, this is a linear system, and if the intent was to achieve as accurate as possible a solution, one could simply use a state transition matrix. However, the purpose is simply to improve the author's familiarity with numerical methods, differential equations, HTML, and JavaScript. So for now, it is sufficient to show differences between approximations such as Euler's method and the classic RK4.
 
 Furthermore, being so contrived, this project would be more aptly titled "Explicit Runge-Kutta Stability Renderer", since the author's knowledge of differential equations belongs solely in the non-stiff realm.
 
@@ -170,10 +170,7 @@ The current state of the program meets the author's intent. However, in the cour
 *Quantifiable measure of effort for each method*
 
 - For a comparison to determine feasibility for real time visual simulation
-
-*Toggle Uniform Tolerance or Uniform Intervals*
-
-- For comparison of numerical methods, see behavior when intervals chosen to meet a universal tolerance or when intervals are equal across methods (might be infeasible or a poor comparison)
+- Also, potentially toggle uniform effort
 
 *Simulation Time Animation*
 
@@ -183,6 +180,7 @@ The current state of the program meets the author's intent. However, in the cour
 *Generalization to nth order linear ODEs*
 
 - Build a solver that transforms equation into some canonical state space formulation
+- Also accepts various forcing functions: impulse, step, ramp, sinusoid w/ phase shift
 
 *Approximation Method Class*
 
